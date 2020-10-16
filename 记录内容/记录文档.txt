@@ -1,0 +1,12 @@
+本项目学习视频：https://www.bilibili.com/video/BV1qz411z7s3/
+讨论博客：https://www.aspirantzhang.com/
+相关视频：
+	React入门课程https://coding.imooc.com/class/229.html
+	Es6精讲：https://ke.qq.com/course/386822
+	Typescript：https://coding.imooc.com/class/412.html
+
+
+
+Umi
+	约定路由：
+		如果没有路由配置，那么到src/pages下面根据目录结构得到路由

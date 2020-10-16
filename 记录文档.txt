@@ -1,0 +1,32 @@
+本项目学习视频：https://www.bilibili.com/video/BV1qz411z7s3/
+讨论博客：https://www.aspirantzhang.com/
+相关视频：
+	React入门课程https://coding.imooc.com/class/229.html
+	Es6精讲：https://ke.qq.com/course/386822
+	Typescript：https://coding.imooc.com/class/412.html
+
+
+
+Umi
+	约定路由：
+		如果没有路由配置，那么到src/pages下面根据目录结构得到路由
+		Routes配置一般在.umirc.ts 或 config/config.js 里，routes字段
+	Q:一般是用约定路由还是配置路由
+
+Dva
+	Redux Store -> Modal
+	state -> state
+	同步数据 -> Reducer -> 页面从这里面拿数据
+	异步数据 -> Effect -> 接口数据
+	订阅 -> Subscription -> 页面上使用的，放在了仓库里
+
+antD
+	Umi内部默认引入了antD
+css
+	在src/global.css 中定义的样式默认为全局样式
+	如果是新增的global.css文件，需要重启项目
+
+
+
+
+如何配置项目兼容es11
