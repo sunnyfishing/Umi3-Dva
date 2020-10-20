@@ -1,0 +1,105 @@
+// 第一版   结构
+const UserModel={
+  namespace:'users',    //命名空间
+  state:{},             // 初始数据
+  reducers:{},          // 同步改变数据
+  effects:{},           // 异步改变数据
+  subscriptions:{},     // 监视器
+}
+export default UserModel
+
+// 第二版   内容
+const UserModel={
+  namespace:'users',
+  state:{},
+  reducers:{
+    getList(state,action){      // state是旧数据，action是一个包含type和payload的对象
+      // return newState        // return到该namespace下
+    },
+  },
+  effects:{
+    *getAllList(action, effects){
+      // yield put()            // 通过put调用reducers里面的函数
+    }
+  },
+  subscriptions:{
+    name({ dispatch, history }, done) {
+      
+    }
+  },
+}
+export default UserModel
+
+// action:
+//   action === object
+//   dispatch(action)
+//   {
+//     type:'getList',
+//     payload:{
+//       ...
+//     }
+//   }
+
+//第三版    引入TS
+import{Reducer,Effect, Subscription} from 'umi';
+
+interface UserModel{
+  namespace:'users',    // 固定值
+  state:{},
+  reducers:{},
+  effects:{},
+  subscriptions:{
+    setup:Subscription
+  }
+}
+
+const UserModel:UserModel={
+  namespace:'users',
+  state:{},
+  reducers:{
+    getList(state,action){
+      // return newState   // return到该namespace下
+    },
+  },
+  effects:{
+    *getAllList(action, effects){
+      // yield put()    // 通过put调用reducers里面的函数
+    }
+  },
+  subscriptions:{
+    setup({ dispatch, history }, done) {
+      
+    }
+  },
+}
+export default UserModel
+
+// 第四版   写subscription，reducer
+subscriptions:{
+    setup({ dispatch, history }, done) {
+      return history.listen(({pathname})=>{    //监听地址  .lesten((location,action)=>{}) action没用，location中只用到pathname，于是解构拿到pathname
+        if(pathname === '/users'){
+          dispatch({
+            type:'getList',
+            payload:{},         //没用参数可以不写
+          })
+        }
+      })  
+    }
+  },
+
+reducers:{
+    getList(state,action){    // state是之前的状态
+      // return newState   // return到该namespace下
+      const data=[
+        {
+          key: '1',
+          name: 'John Brown',
+          age: 32,
+          address: 'New York No. 1 Lake Park',
+          tags: ['nice', 'developer'],
+        },
+      ]
+      return data
+    },
+  },

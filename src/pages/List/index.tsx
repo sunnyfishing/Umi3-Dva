@@ -52,7 +52,7 @@ const index =  (state)=>{
         },
       ];
       
-    return <div className='list-table'><Table columns={columns} dataSource={state.users} /></div>
+    return <div className='list-table'><Table columns={columns} dataSource={state.list||[]} /></div>
 }
 const mapStateToProps = (state)=>{
     console.log('mapStateToProps',state)

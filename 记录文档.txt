@@ -26,7 +26,31 @@ css
 	在src/global.css 中定义的样式默认为全局样式
 	如果是新增的global.css文件，需要重启项目
 
+从页面到modal的过程
+	通过 connect 连接组件与 mapstatetoprops 函数，mapstatetoprops 函数与 modal 连接
+	modal里面通过subscription监听组件内的事件来通过dispatch触发 reducers或 effects里面的函数
+	mapstatetoprops(state) 接收的是model，所有的model都会有
+
+dva in umi
+	dva的开始是自动的，如果有用到dva的内容，就会开启，就会在 .umi 下找到对应的plugin-dva
+
+Reducers:
+	是modal向页面发送数据的唯一出口
+	reducers中的函数返回的内容是返回到了该namespace下
+
+Effects
+	effect改变Reducer中的数据是使用 put
+
+每一个页面只有一个model
+
+
+遇到的问题：
+1. Module '"../../../node_modules/umi/types"' has no exported member 'connect'
+	【connect没有引入应该与dva有关 .umi的机制貌似是，只要探测到正确的model文件，就会自动开启dva。如果umi已经给开启dva的话，则会在/src/.umi文件夹中看到plugin-dva文件夹。所以，首先检查model文件有没有错误，然后yarn start启动项目，再尝试引入connect。】
+	【是model，而不是modal！！！】
 
 
 
 如何配置项目兼容es11
+
+
