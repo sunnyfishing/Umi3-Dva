@@ -41,7 +41,36 @@ Reducers:
 Effects
 	effect改变Reducer中的数据是使用 put
 
+Subscription
+	通过dispatch({...}) 向Reducer或 Effect 发送action来改变数据
+		dispatch({
+			type:'funcName',
+			payload:{...}
+		})
+
 每一个页面只有一个model
+
+代理
+	umi -> proxy
+	在 .umirc.ts 中配置(配置之后要重启项目)
+	proxy: {
+		'/api': {
+		'target': 'http://jsonplaceholder.typicode.com/',
+		'changeOrigin': true,
+		'pathRewrite': { '^/api' : '' },
+		},
+	},
+	在service中
+		return request('/api/users', {
+			method: 'get',
+		})
+		.then(function(response) {
+			console.log(response);
+			return response
+		})
+		.catch(function(error) {
+			console.log(error);
+		});
 
 
 遇到的问题：

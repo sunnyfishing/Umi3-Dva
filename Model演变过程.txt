@@ -103,3 +103,53 @@ reducers:{
       return data
     },
   },
+
+// 第五版   通过subscription调用effect，然后effect调用service，然后把数据传给reducer
+service.js
+export const getRemoteList = ()=>{
+    const data=[
+        {
+          key: '1',
+          name: 'John Brown',
+          age: 32,
+          address: 'New York No. 1 Lake Park',
+          tags: ['nice', 'developer'],
+        },
+      ]
+    return data
+}
+model.js
+const UserModel:UserModel={
+  namespace:'list',
+  state:{},
+  reducers:{
+    getList(state,{payload}){     // 这里的参数是 (state, action) => (state, {payload, type})   state是原来的状态
+      // return newState          // return到该namespace下
+      return payload
+    },
+  },
+  effects:{
+    *getRemote({payload}, {put,call}){   // 这里接收的是 (action,effect) =>({payload,type},{put,effet,call})
+      // yield put()                // 通过put调用reducers里面的函数
+      let data = yield call(getRemoteList)
+      yield put({
+        type:'getList',
+        payload:data
+      })
+    }
+  },
+  subscriptions:{
+    setup({ dispatch, history }, done) {
+      return history.listen(({pathname})=>{     //监听地址  .lesten((location,action)=>{}) action没用，location中只用到pathname，于是解构拿到pathname
+        if(pathname === '/stepFive'){
+          dispatch({
+            type:'getRemote',
+            payload:{},                         //没用参数可以不写
+          })
+        }
+      })  
+    }
+  },
+}
+
+// 第六版   加入接口
