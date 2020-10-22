@@ -1,12 +1,11 @@
 import React,{useState} from 'react'
-import {Table, Popconfirm} from 'antd'
+import {Table, Popconfirm,Button} from 'antd'
 import { connect } from 'umi';
 import {UserModal} from './components/UserModal'
 
 const index =  ({stepSeven,dispatch})=>{
   const [modelVisible, setModelVisible] = useState(false)
   const [record, setRecord] = useState({})
-  console.log('stepSix',stepSeven)
     const columns = [
         {
           title: 'ID',
@@ -56,32 +55,35 @@ const index =  ({stepSeven,dispatch})=>{
       setModelVisible(false)
 
     }
-    const onFinish = async (value)=>{
-      console.log(value)
-      const {id} = record
-      await dispatch({
-        type:'stepSeven/edit',
-        payload:{value,id}
-      })
-      await handleClose()
-      getList()
+    const onFinish = (value)=>{
+      if(record){
+        const {id} = record
+        dispatch({
+          type:'stepSeven/edit',
+          payload:{value,id}
+        })
+      }else{
+        dispatch({
+          type:'stepSeven/add',
+          payload:{value}
+        })
+      }
+      handleClose()
     }
-    const confirm = async (record)=>{
+    const confirm = (record)=>{
       const {id} = record
-      await dispatch({
+      dispatch({
         type:'stepSeven/delete',
         payload:{id}
       })
-      getList()
     }
-    const getList = ()=>{
-      dispatch({
-        type:'stepSeven/getRemote',
-        payload:{},                         //没用参数可以不写
-      })
+    const onAdd = ()=>{
+      setModelVisible(true)
+      setRecord(undefined)
     }
     
     return <div className='list-table'>
+      <Button type='primary' onClick={onAdd}>Add</Button>
       <Table rowKey='id' columns={columns} dataSource={stepSeven.data||[]} />
       <UserModal
         visible={modelVisible}
@@ -92,7 +94,6 @@ const index =  ({stepSeven,dispatch})=>{
     </div>
 }
 const mapStateToProps = (state)=>{
-    console.log('mapStateToProps',state.stepSeven)
     return state
 }
 export default connect(mapStateToProps)(index)

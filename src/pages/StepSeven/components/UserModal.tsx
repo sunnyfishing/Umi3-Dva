@@ -5,7 +5,11 @@ export const UserModal = (props)=>{
     const [form] = Form.useForm();
     const {visible,handleClose,record,onFinish} = props
     useEffect(() => {
-        form.setFieldsValue(record)
+        if(record){
+            form.setFieldsValue(record)
+        }else{
+            form.resetFields()
+        }
     },[visible])
 
     const onOk = ()=>{

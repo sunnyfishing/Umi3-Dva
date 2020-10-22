@@ -12,6 +12,30 @@ Umi
 		如果没有路由配置，那么到src/pages下面根据目录结构得到路由
 		Routes配置一般在.umirc.ts 或 config/config.js 里，routes字段
 	Q:一般是用约定路由还是配置路由
+	代理
+		umi -> proxy
+		在 .umirc.ts 中配置(配置之后要重启项目)
+			proxy: {
+				'/api': {
+				'target': 'http://jsonplaceholder.typicode.com/',
+				'changeOrigin': true,
+				'pathRewrite': { '^/api' : '' },
+				},
+			},
+		在service中
+			return request('/api/users', {
+				method: 'get',
+			})
+			.then(function(response) {
+				console.log(response);
+				return response
+			})
+			.catch(function(error) {
+				console.log(error);
+			});
+	css
+		在src/global.css 中定义的样式默认为全局样式
+		如果是新增的global.css文件，需要重启项目
 
 Dva
 	Redux Store -> Modal
@@ -19,99 +43,63 @@ Dva
 	同步数据 -> Reducer -> 页面从这里面拿数据
 	异步数据 -> Effect -> 接口数据
 	订阅 -> Subscription -> 页面上使用的，放在了仓库里
+	dva in umi
+		dva的开始是自动的，如果有用到dva的内容，就会开启，就会在 .umi 下找到对应的plugin-dva
 
 antD
 	Umi内部默认引入了antD
-css
-	在src/global.css 中定义的样式默认为全局样式
-	如果是新增的global.css文件，需要重启项目
-
-从页面到modal的过程
-	通过 connect 连接组件与 mapstatetoprops 函数，mapstatetoprops 函数与 modal 连接
-	modal里面通过subscription监听组件内的事件来通过dispatch触发 reducers或 effects里面的函数
-	mapstatetoprops(state) 接收的是model，所有的model都会有
-
-dva in umi
-	dva的开始是自动的，如果有用到dva的内容，就会开启，就会在 .umi 下找到对应的plugin-dva
-
-Reducers:
-	是modal向页面发送数据的唯一出口
-	reducers中的函数返回的内容是返回到了该namespace下
-
-
-Effects
-	effect改变Reducer中的数据是使用 put
-	调用Reducer中的函数用put 
-		put({
-			type:'',
-			payload:{}
-		})
-	调用Services中的函数用call
-		call('funcName',data)	//当不需要传参时， data可省略
-
-Subscription
-	通过dispatch({...}) 向Reducer或 Effect 发送action来改变数据
-		dispatch({
-			type:'funcName',
-			payload:{...}
-		})
-
-每一个页面只有一个model
-
-代理
-	umi -> proxy
-	在 .umirc.ts 中配置(配置之后要重启项目)
-	proxy: {
-		'/api': {
-		'target': 'http://jsonplaceholder.typicode.com/',
-		'changeOrigin': true,
-		'pathRewrite': { '^/api' : '' },
-		},
-	},
-	在service中
-		return request('/api/users', {
-			method: 'get',
-		})
-		.then(function(response) {
-			console.log(response);
-			return response
-		})
-		.catch(function(error) {
-			console.log(error);
-		});
-
-antD
 	form
-		const [form] = Form.useForm();
-		<Form form={form}>...</Form>
+		const [form] = Form.useForm();	// 创建表单实例
+		<Form form={form}>...</Form>	// 将表单实例应用到表单组件上
+
+		useEffect(() => {				// 给form 赋初始值
+			form.setFieldsValue(record)
+		},[visible])
 
 		表单提交
 			在使用model进行表单提交时
-			form.submit()	//提交表单
+			form.submit()	//提交表单，代替submit
 			<Form
 				onFinish={onFinish}			//表单提交成功
 				onFinishFailed={onFinishFailed}		// 表单提交失败
             >
 			</Form>
+		
+		清空表单值
+			form.resetFields()
 
-在页面调用model里面的函数
-	还是用dispatch调用。
-	在mapstatetoprops返回给组件内容是一个state，包括namespace、dispatch等，所以在组件接收参数时，可以接收到一个dispatch
-	在提交事件中用 dispatch({type:'...',payload:{...}})	提交到Model中
-	注意：这里的type不单是函数名，还要加namespace  type:'stepSeven/edit'
+Model
+	Reducer:
+		是modal向页面发送数据的唯一出口
+		reducers中的函数将内容返回给namespace，然后mapstatetoprops接收namespace并获取数据
+		reducer接收的数据 name(state, action){}
+	Effect：
+		effects调用service——call(funcName,{data})
+		effects调用reducers函数——put(action)
+		effects调用effects函数——put(action)
+	Subscription
+		调用effects——dispatch(action)
+		调用reducers——dispatch(action)
 
-
-
-双层对象的解构赋值
-	const obj={
-		obj1:{
-			a:1
+Component
+	组件调用Reducer、Effect——dispatch(action)
+		dispatch是从mapstatetoprops中接收到的
+		const mapStateToProps = (state)=>{
+			return state
 		}
-		b:2
-	}
-	const {obj1:{a}} = obj
+		const Component = ({namespace, dispatch})=>{...}
+	调用Effect
+		在组件中调用effects要注明命名空间（namespace）
+		dispatch({
+			type:'namespace/effect',
+			payload:{}
+		})
 
-service
+组件 <-> Model
+	用connect将mapstatetoprops和组件连接
+	mapstatetoprops接收所有的model及dispatch方法	
+
+Service
 	get:
 		export const getRemoteList = ()=>{
 			return request('http://public-api-v1.aspirantzhang.com/users', {
@@ -126,7 +114,33 @@ service
 			});
 		}
 	put：（表单）
+		export const editRecord = ({value,id})=>{
+			console.log('value',value)
+			return request(`http://public-api-v1.aspirantzhang.com/users/${id}`, {
+				method: 'put',
+				data: value,
+			})
+				.then(function(response) {
+				console.log(response);
+				// return response
+				console.log('ok')
+				})
+				.catch(function(error) {
+				console.log(error);
+				});
+		}
 
+
+
+双层对象的解构赋值
+	const obj={
+		obj1:{
+			a:1
+		}
+		b:2
+	}
+	const {obj1:{a}} = obj
+	
 
 遇到的问题：
 1. Module '"../../../node_modules/umi/types"' has no exported member 'connect'
