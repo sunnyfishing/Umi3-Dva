@@ -1,5 +1,5 @@
 import{Reducer,Effect, Subscription} from 'umi';
-import {getRemoteList} from './service';
+import {getRemoteList,editRecord,deleteRecord} from './service';
 
 interface UserModel{
   namespace:'stepSeven',    // 固定值
@@ -10,6 +10,8 @@ interface UserModel{
   },
   effects:{
     getRemote:Effect
+    edit:Effect,
+    delete:Effect
   },
   subscriptions:{
     setup:Subscription
@@ -26,14 +28,23 @@ const UserModel:UserModel={
     },
   },
   effects:{
-    *getRemote({payload}, {put,call}){   // 这里接收的是 (action,effect) =>({payload,type},{put,effet,call})
-      // yield put()                // 通过put调用reducers里面的函数
+    *getRemote({payload}, {put,call}){   // 这里接收的是 (action,effect) =>({payload,type},{put,effet,call})；通过put调用reducers里面的函数；call调用service中的函数
+      // yield put()                // 
       let data = yield call(getRemoteList)
       console.log('data',data)
       yield put({
         type:'getList',
         payload:data
       })
+    },
+    *edit({payload:{value,id}},{call}){
+      console.log('record',value)
+      let data = yield call(editRecord,{value,id})
+
+    },
+    *delete({payload:{id}},{call}){
+      console.log('id',id)
+      let data = yield call(deleteRecord,{id})
     }
   },
   subscriptions:{

@@ -3,20 +3,29 @@ import { Modal, Button,Form ,Input} from 'antd';
 
 export const UserModal = (props)=>{
     const [form] = Form.useForm();
-    const {visible,handleClose,record} = props
+    const {visible,handleClose,record,onFinish} = props
     useEffect(() => {
         form.setFieldsValue(record)
     },[visible])
+
+    const onOk = ()=>{
+        form.submit()
+    }
+    const onFinishFailed = (error)=>{
+        console.log(error)
+    }
     return <Modal
         title="Basic Modal"
         visible={visible}
-        onOk={handleClose}
+        onOk={onOk}
         onCancel={handleClose}
         forceRender
     >
         <Form
             name="basic"
             form={form}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
             >
             <Form.Item
                 label="name"

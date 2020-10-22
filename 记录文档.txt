@@ -38,8 +38,16 @@ Reducers:
 	是modal向页面发送数据的唯一出口
 	reducers中的函数返回的内容是返回到了该namespace下
 
+
 Effects
 	effect改变Reducer中的数据是使用 put
+	调用Reducer中的函数用put 
+		put({
+			type:'',
+			payload:{}
+		})
+	调用Services中的函数用call
+		call('funcName',data)	//当不需要传参时， data可省略
 
 Subscription
 	通过dispatch({...}) 向Reducer或 Effect 发送action来改变数据
@@ -76,6 +84,49 @@ antD
 	form
 		const [form] = Form.useForm();
 		<Form form={form}>...</Form>
+
+		表单提交
+			在使用model进行表单提交时
+			form.submit()	//提交表单
+			<Form
+				onFinish={onFinish}			//表单提交成功
+				onFinishFailed={onFinishFailed}		// 表单提交失败
+            >
+			</Form>
+
+在页面调用model里面的函数
+	还是用dispatch调用。
+	在mapstatetoprops返回给组件内容是一个state，包括namespace、dispatch等，所以在组件接收参数时，可以接收到一个dispatch
+	在提交事件中用 dispatch({type:'...',payload:{...}})	提交到Model中
+	注意：这里的type不单是函数名，还要加namespace  type:'stepSeven/edit'
+
+
+
+双层对象的解构赋值
+	const obj={
+		obj1:{
+			a:1
+		}
+		b:2
+	}
+	const {obj1:{a}} = obj
+
+service
+	get:
+		export const getRemoteList = ()=>{
+			return request('http://public-api-v1.aspirantzhang.com/users', {
+			method: 'get',
+			})
+			.then(function(response) {
+				console.log(response);
+				return response
+			})
+			.catch(function(error) {
+				console.log(error);
+			});
+		}
+	put：（表单）
+
 
 遇到的问题：
 1. Module '"../../../node_modules/umi/types"' has no exported member 'connect'
