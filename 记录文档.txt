@@ -71,7 +71,7 @@ antD
 Model
 	Reducer:
 		是modal向页面发送数据的唯一出口
-		reducers中的函数将内容返回给namespace，然后mapstatetoprops接收namespace并获取数据
+		reducers中的函数将内容返回给state，然后mapstatetoprops接收state并获取数据
 		reducer接收的数据 name(state, action){}
 	Effect：
 		effects调用service——call(funcName,{data})
@@ -141,6 +141,38 @@ Service
 	}
 	const {obj1:{a}} = obj
 	
+异常处理
+	umi提供了异常处理的函数（https://github.com/umijs/umi-request/blob/master/README_zh-CN.md）
+	异常处理简化为
+		import request, { extend } from 'umi-request';
+		const errorHandler = function(error) {
+			if (error.response) {
+				if(error.response.status>400){
+				message.error(error.data.message?error.data.message:error.data)
+				}
+			} else {
+				message.error('网络错误')
+			}
+			throw error // 这里是要抛异常的，这样才能在catch中接到请求失败的信息
+		};
+	封装请求：
+		const extendRequest = extend({ errorHandler });   // 如果请求出错，则进入errorHandler中处理错误；否则按照request正常返回
+	请求：
+		export const getRemoteList = ()=>{
+			return extendRequest('http://public-api-v1.aspirantzhang.com/users', {
+				method: 'get',
+			})
+			.then(function(response) {
+				return response		// return true
+			})
+			.catch(function(error) {
+				return false
+			});
+		}
+
+loading
+	从mapstatetoprops的state参数中获取。
+	通过 state.loading.models.namespace 获取，model自动记录loading状态
 
 遇到的问题：
 1. Module '"../../../node_modules/umi/types"' has no exported member 'connect'
@@ -157,3 +189,92 @@ Service
 如何配置项目兼容es11
 
 
+TS
+export interface SingleUserType{
+    id:number,
+    name:string,
+    cretae_time:string,
+    update_time:string,
+    state:number,
+  }
+Component
+	1. 函数组件的类型
+		import {FC} fro 'react'
+		import {Dispatch,State} from 'umi'
+		// 第一种——用于函数
+		const index = ({state, indexLoading, dispatch}:{state:State, indexLoading:boolean, dispatch:Dispatch})=>{...}
+		// 第二种——用于组件
+		interface Data {
+			state:[],
+			indexLoading:boolean,
+			dispatch:Dispatch
+		}
+		const index :FC<Data> = ({state, indexLoading, dispatch})=>{...}
+
+	2. useState 定义类型
+		interface SingleUserType {...}
+		const [record, setRecord] = useState<SingleUserType | undefined>(undefined)
+	3. 箭头函数入参定义类型
+		(obj)=>{}
+		1. (obj:ObjType)=>{}
+		2. ({id}:{id:number})=>{}
+	4. 表单提交时拿到的values的类型
+		export interface FormValues {
+			[name: string]:any
+		}
+		values:FormValues
+	5. table的column里的变量
+		{
+			title:'Action',
+			key:'action',
+			render:(value:string, record:SingleUserType)=>{
+				...
+			}
+        }
+	6. mapStateToProps
+		import { Loading } from 'umi';
+		const mapStateToProps = ({stepEight,loading}:{stepEight:UserState,loading:Loading})=>{}
+	7. 含有函数的props
+		interface Props {
+			visible:boolean,
+			record:SingleUserType | undefined,	// 一条数据或初始化的undefined
+			handleClose:()=>void,				// 无参函数
+			onFinish:(value:FormValues)=>void,	// 有参函数
+		}
+Model
+	1. 定义Model
+		import{Reducer,Effect, Subscription} from 'umi';
+		interface UserModel{
+			namespace:'stepEight',
+			state:UserState,
+			reducers:{
+				getList:Reducer<UserState>,		// 返回值用 UserState的泛型
+			},
+			effects:{
+				getRemote:Effect
+			},
+			subscriptions:{
+				setup:Subscription
+			}
+		}
+		const UserModel:UserModel={...}
+	2. 定义 State
+		export interface UserState{
+			data:SingleUserType[],
+			meta:{
+			total:number,
+			page:number,
+			per_page:number,
+			}
+		}
+		export interface SingleUserType{
+			id:number,
+			name:string,
+			cretae_time:string,
+			update_time:string,
+			state:number,
+		}
+		state: UserState
+Service 
+	1. 处理接口error
+		const errorHandler = function(error:any) {}

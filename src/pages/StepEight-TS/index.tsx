@@ -1,12 +1,20 @@
-import React,{useState} from 'react'
+import React,{useState,FC} from 'react'
 import {Table, Popconfirm,Button} from 'antd'
-import { connect } from 'umi';
+import { connect,Dispatch,Loading } from 'umi';
 import {UserModal} from './components/UserModal'
+import {UserState,SingleUserType,FormValues} from './data.d'
 
-const index =  ({stepSeven,dispatch,userLoading})=>{ 
+interface PageList {
+  stepEight:UserState,
+  dispatch:Dispatch,
+  userLoading:boolean
+}
+
+// const index =  ({stepEight,dispatch,userLoading}:{stepEight:[],dispatch:Dispatch,userLoading:boolean})=>{  // 这是一种方式
+const index: FC<PageList> =  ({stepEight,dispatch,userLoading})=>{    //第二种
   console.log(userLoading)
   const [modelVisible, setModelVisible] = useState(false)
-  const [record, setRecord] = useState({})
+  const [record, setRecord] = useState<SingleUserType | undefined>(undefined)
     const columns = [
         {
           title: 'ID',
@@ -32,7 +40,7 @@ const index =  ({stepSeven,dispatch,userLoading})=>{
         {
           title:'Action',
           key:'action',
-          render:(value, record)=>{
+          render:(value:string, record:SingleUserType)=>{
             return <span>
               <a onClick={()=>modelHandler(record)}>Edit</a>&nbsp;&nbsp;&nbsp;
               <Popconfirm
@@ -48,7 +56,7 @@ const index =  ({stepSeven,dispatch,userLoading})=>{
         }
       ];
     
-    const modelHandler = (record)=>{
+    const modelHandler = (record:SingleUserType)=>{
       setModelVisible(true)
       setRecord(record)
     }
@@ -56,25 +64,25 @@ const index =  ({stepSeven,dispatch,userLoading})=>{
       setModelVisible(false)
 
     }
-    const onFinish = (value)=>{
+    const onFinish = (value:FormValues)=>{
       if(record){
         const {id} = record
         dispatch({
-          type:'stepSeven/edit',
+          type:'stepEight/edit',
           payload:{value,id}
         })
       }else{
         dispatch({
-          type:'stepSeven/add',
+          type:'stepEight/add',
           payload:{value}
         })
       }
       handleClose()
     }
-    const confirm = (record)=>{
+    const confirm = (record:SingleUserType)=>{
       const {id} = record
       dispatch({
-        type:'stepSeven/delete',
+        type:'stepEight/delete',
         payload:{id}
       })
     }
@@ -85,7 +93,7 @@ const index =  ({stepSeven,dispatch,userLoading})=>{
     
     return <div className='list-table'>
       <Button type='primary' onClick={onAdd}>Add</Button>
-      <Table rowKey='id' columns={columns} dataSource={stepSeven.data||[]} loading={userLoading}/>
+      <Table rowKey='id' columns={columns} dataSource={stepEight.data||[]} loading={userLoading}/>
       <UserModal
         visible={modelVisible}
         record={record}
@@ -94,11 +102,11 @@ const index =  ({stepSeven,dispatch,userLoading})=>{
       ></UserModal>
     </div>
 }
-const mapStateToProps = ({stepSeven,loading})=>{
+const mapStateToProps = ({stepEight,loading}:{stepEight:UserState,loading:Loading})=>{
   console.log(loading)
     return {
-      stepSeven,
-      userLoading:loading.models.stepSeven
+      stepEight,
+      userLoading:loading.models.stepEight
     }
 }
 export default connect(mapStateToProps)(index)

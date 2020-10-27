@@ -1,14 +1,40 @@
 import{Reducer,Effect, Subscription} from 'umi';
 import {message} from 'antd'
 import {getRemoteList,editRecord,deleteRecord,Add} from './service';
+import {SingleUserType,UserState} from './data.d'
 
+interface UserModel{
+  namespace:'stepEight',    // 固定值
+  state:UserState,
+  reducers:{
+    getList:Reducer<UserState>,
+    // returndata:Reducer
+  },
+  effects:{
+    getRemote:Effect
+    edit:Effect,
+    delete:Effect,
+    add:Effect
+  },
+  subscriptions:{
+    setup:Subscription
+  }
+}
 
-const UserModel={
-  namespace:'stepSeven',
-  state:{},
+const UserModel:UserModel={
+  namespace:'stepEight',
+  state:{
+    data:[],
+    meta:{
+      total:0,
+      page:1,
+      per_page:5,
+    }
+  },
   reducers:{
     getList(state,{payload}){     // 这里的参数是 (state, action) => (state, {payload, type})   state是原来的状态
       // return newState          // return到该namespace下
+      console.log(payload)
       return payload
     },
   },
@@ -54,7 +80,7 @@ const UserModel={
   subscriptions:{
     setup({ dispatch, history }, done) {
       return history.listen(({pathname})=>{     //监听地址  .lesten((location,action)=>{}) action没用，location中只用到pathname，于是解构拿到pathname
-        if(pathname === '/stepSeven'){
+        if(pathname === '/stepEight-TS'){
           dispatch({
             type:'getRemote',
             payload:{},                         //没用参数可以不写

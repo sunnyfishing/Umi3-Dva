@@ -1,8 +1,9 @@
 // import { request } from 'umi';
 import request, { extend } from 'umi-request';
 import {message} from 'antd'
+import {UserState,SingleUserType,FormValues} from './data.d'
 
-const errorHandler = function(error) {
+const errorHandler = function(error:any) {
   if (error.response) {
     if(error.response.status>400){
       message.error(error.data.message?error.data.message:error.data)
@@ -27,7 +28,7 @@ export const getRemoteList = ()=>{
         return false
       });
 }
-export const editRecord = ({value,id})=>{
+export const editRecord = ({value,id}:{value:FormValues,id:number})=>{
   return extendRequest(`http://public-api-v1.aspirantzhang.com/users/${id}`, {
     method: 'put',
     data: value,
@@ -42,7 +43,7 @@ export const editRecord = ({value,id})=>{
     });
 }
 // 
-export const deleteRecord = ({id})=>{
+export const deleteRecord = ({id}:{id:number})=>{
   return extendRequest(`http://public-api-v1.aspirantzhang.com/users/${id}`, {
     method: 'delete',
   })
@@ -53,7 +54,7 @@ export const deleteRecord = ({id})=>{
       return false
     });
 }
-export const Add = async ({value})=>{
+export const Add = async ({value}:{value:FormValues})=>{
   return extendRequest(`http://public-api-v1.aspirantzhang.com/users`, {
     method: 'post',
     data: value,
